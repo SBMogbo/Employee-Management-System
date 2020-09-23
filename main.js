@@ -83,7 +83,7 @@ function allEmployees() {
       // LOG RESULTS TO THE CONSOLE
       console.table(results);
       console.log("\n");
-      // RETURN TO START; PROMPT USER FOR ACTION TO BE EXECUTED
+      //start prompt
       promptUser();
     }
   });
@@ -105,13 +105,13 @@ function ViewAllEmployeesDepartment() {
           name: "departmentName"
         },
       ]).then((response) => {
-        // JOIN employee, role, AND department TABLES TO COMBINE DATA AND RETURN employee ID, first and last names, and title DATA for the department chosen by user
+        
         connection.query(`select employee.id, employee.first_name, employee.last_name, role.title from employee 
                           inner join role on role.id = employee.role_id 
                           inner join department on department.id = role.department_id
-                        WHERE ?`, { name: response.departmentName }, (error, results) => {
+                        where ?`, { name: response.departmentName }, (error, results) => {
           console.log("\n");
-          // DISPLAY results for user
+          // show results for user
           console.table(results);
           console.log("\n");
           promptUser();
@@ -126,7 +126,7 @@ function employeesbyManagemnt() {
       console.log(error);
       connection.end();
     } else {
-      const departmentNames = listofDepartments.map((role) => role.name);
+      const managerName = listofDepartments.map((role) => role.name);
       inquirer.prompt([
         // prompt user for department to view
         {
@@ -136,7 +136,7 @@ function employeesbyManagemnt() {
           name: "managerName"
         },
       ]).then((response) => {
-        // JOIN employee, role, AND department TABLES TO COMBINE DATA AND RETURN employee ID, first and last names, and title DATA for the department chosen by user
+       
         connection.query(`select employee.id, employee.first_name, employee.last_name, role.title from employee 
                           inner join role on manager_id = employee.manager_id 
                           inner join department on manager_id = role.manager_id
@@ -154,17 +154,17 @@ function employeesbyManagemnt() {
 
 
 
-// FUNCTION TO VIEW ALL ROLES
+// VIEW ALL ROLES
 function viewAllRoles() {
-  // JOIN role AND department TABLES TO COMBINE DATA AND RETURN role ID, title, and department name DATA for the role chosen by user
+  
   connection.query(`SELECT role.id, role.title, department.name AS department, role.salary FROM role 
-                          INNER JOIN department ON department.id = role.department_id`, function (error, results) {
+                          inner join department ON department.id = role.department_id`, function (error, results) {
     if (error) {
       console.log(error);
       connection.end();
     } else {
       console.log("\n");
-      // DISPLAY results for user
+      //  results for user
       console.table(results);
       console.log("\n");
       promptUser();
@@ -173,7 +173,7 @@ function viewAllRoles() {
 }
 
 
-// FUNCTION TO ADD new DEPARTMENT
+// add new Department
 function addDepartment() {
   // PROMPT USER FOR name OF NEW DEPARTMENT
   inquirer.prompt([
@@ -183,10 +183,10 @@ function addDepartment() {
       name: "newDepartmentName",
     },
   ]).then((response) => {
-    // INSERT NEW department into department table
-    connection.query(`INSERT INTO department SET ?`, { name: response.newDepartmentName }, (error, results) => {
+    // add department into department table
+    connection.query(`insert into department SET ?`, { name: response.newDepartmentName }, (error, results) => {
       console.log("\n");
-      console.log(`Added ${response.newDepartmentName} to the DEPARTMENT database`)
+      console.log(`Added ${response.newDepartmentName} to the Department database`)
       console.log("\n");
       promptUser();
     });
@@ -194,9 +194,9 @@ function addDepartment() {
 }
 
 
-// FUNCTION TO ADD new ROLE
+// add new ROLE
 function addRole() {
-  // SELECT ALL FROM department; we will need to ACCESS the results(listOfDepartments) of the callback function
+  
   connection.query("SELECT * FROM department", (error, listOfDepartments) => {
     if (error) {
       console.log(error);
@@ -229,7 +229,7 @@ function addRole() {
         //find department_id that matches user's department choice
         const department = listOfDepartments.find((department) => department.name == response.departmentName);
 
-        // INSERT NEW role into role table
+        // add new role into role table
         connection.query(`INSERT INTO role SET ?`, { title: response.newRoleTitle, salary: response.newRoleSalary, department_id: department.id }, (error, results) => {
           console.log("\n");
           console.log(`Added ${response.newRoleTitle} to the ${department.name} department`)
@@ -241,9 +241,9 @@ function addRole() {
   });
 }
 
-// FUNCTION TO ADD new EMPLOYEE
+// new Employee
 function addEmployee() {
-  // SELECT ALL FROM role; we will need to ACCESS the results(listOfRoles) of the callback function
+  
   connection.query("SELECT * FROM role", (error, listOfRoles) => {
     if (error) {
       console.log(error);
@@ -275,8 +275,8 @@ function addEmployee() {
       ]).then((response) => {
         //find role that matches user's title choice
         const role = listOfRoles.find((role) => role.title == response.employeeRole);
-        // INSERT NEW employee into employee table
-        connection.query(`INSERT INTO employee SET ?`, { first_name: response.employeeFirst, last_name: response.employeeLast, role_id: role.id }, (error, results) => {
+        // Iadd employee into employee table
+        connection.query(`insert into employee set ?`, { first_name: response.employeeFirst, last_name: response.employeeLast, role_id: role.id }, (error, results) => {
           console.log("\n");
           console.log(`Added ${response.employeeFirst} ${response.employeeLast} to the database`)
           console.log("\n");
@@ -289,13 +289,13 @@ function addEmployee() {
 
 function updateRole() {
   connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role_id, role.title, department.name AS department FROM employee	
-                      INNER JOIN role ON role.id = employee.role_id 
-                      INNER JOIN department ON department.id = role.department_id;`, function (error, results) {
+                      inner join role on role.id = employee.role_id 
+                      inner join department on department.id = role.department_id;`, function (error, results) {
     if (error) {
       console.log(error);
       connection.end();
     } else {
-      // DISPLAY results for user
+      // show results for user
       console.table(results);
 
       inquirer.prompt([
@@ -327,14 +327,14 @@ function updateRole() {
 }
 
 function updateEmployeeManager() {
-  connection.query(`SELECT employee.id, employee.first_name, employee.last_name, role_id, role.title, department.name AS department FROM employee	
-                      INNER JOIN role ON role.id = employee.role_id 
-                      INNER JOIN department ON department.id = role.department_id;`, function (error, results) {
+  connection.query(`select employee.id, employee.first_name, employee.last_name, role_id, role.title, department.name AS department FROM employee	
+                      inner join role ON role.id = employee.role_id 
+                      inner join department on department.id = role.department_id;`, function (error, results) {
     if (error) {
       console.log(error);
       connection.end();
     } else {
-      // DISPLAY results for user
+      // showvresults for user
       console.table(results);
 
       inquirer.prompt([
@@ -345,11 +345,11 @@ function updateEmployeeManager() {
         },
         {
           type: "input",
-          message: "Enter role_id number for the employee's NEW role",
+          message: "Enter role_id number for the employee's new role",
           name: "roleID"
         },
       ]).then((response) => {
-        connection.query(`UPDATE employee SET role_id = ? WHERE id = ?`, [response.roleID, response.employeeID], function (error, results) {
+        connection.query(`update employee set role_id = ? where id = ?`, [response.roleID, response.employeeID], function (error, results) {
           if (error) {
             console.log(error);
             connection.end();
@@ -366,15 +366,15 @@ function updateEmployeeManager() {
 
 }
 
-// FUNCTION TO DELETE EMPLOYEE
+// delete Employee
 function deleteEmployee() {
-  // SELECT employee ID number, first and lasdt names from employee table
+  // 
   connection.query(`SELECT employee.id, employee.first_name, employee.last_name FROM employee`, function (error, results) {
     if (error) {
       console.log(error);
       connection.end();
     } else {
-      // DISPLAY results for user
+      // show results for user
       console.table(results);
 
       inquirer.prompt([
@@ -385,7 +385,7 @@ function deleteEmployee() {
           name: "employeeID"
         },
       ]).then((response) => {
-        // DELETE employee FROM employee table
+        // remover employee FROM employee table
         connection.query(`DELETE FROM employee WHERE ?`, { id: response.employeeID }, function (error, results) {
           if (error) {
             console.log(error);
